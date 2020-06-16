@@ -1,0 +1,28 @@
+---
+- :name: A
+  :dependencies:
+  - B
+  - C
+- :name: B
+  :dependencies:
+  - H
+  - D
+  - E
+- :name: C
+  :dependencies:
+  - F
+- :name: D
+  :dependencies:
+  - H
+  - G
+- :name: E
+  :dependencies:
+  - H
+  - G
+- :name: F
+  :dependencies: []
+- :name: G
+  :dependencies:
+  - H
+- :name: H
+  :dependencies: []
