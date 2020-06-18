@@ -71,3 +71,7 @@ For local development of this plugin, the simplest approach is to install it int
     gem 'cocoapods-why', path: "#{ENV['HOME']}/projects/cocoapods-why"
 
 You can then make changes to the code and they will be executed when using the `why` command from the app's directory.
+
+# Copyright
+
+Copyright 2020 Square, Inc.
