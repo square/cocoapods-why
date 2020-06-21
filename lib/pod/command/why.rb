@@ -147,9 +147,14 @@ module Pod
 
       # Finds and prints all paths from source to target.
       def find_all_dependency_paths(source, target, graph)
-        UI.puts "Why does #{source} depend on #{target}?"
-
         all_paths = all_paths(source, target, graph)
+
+        if all_paths.empty?
+          UI.puts "#{source} does not depend on #{target}"
+          return
+        end
+
+        UI.puts "Why does #{source} depend on #{target}?"
 
         all_paths.each do |path|
           UI.puts path.join(' ⟶   ')
