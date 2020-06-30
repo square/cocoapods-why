@@ -80,8 +80,9 @@ module Pod
       # @return [Hash<String,Array<String>>] a mapping of pod names to their direct dependencies
       def all_dependencies(targets)
         targets.to_h do |target|
-          target_dependencies = target[:dependencies].delete_if { |dep| dep.include? '/' } # Remove subspecs
-          [target[:name], target_dependencies]
+          deps = target[:dependencies] || []
+          deps = deps.delete_if { |dep| dep.include? '/' } # Remove subspecs
+          [target[:name], deps]
         end
       end
 

@@ -20,9 +20,7 @@
   - H
   - G
 - :name: F
-  :dependencies: []
 - :name: G
   :dependencies:
   - H
 - :name: H
-  :dependencies: []
