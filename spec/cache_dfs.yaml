@@ -1,0 +1,13 @@
+---
+- :name: A
+  :dependencies:
+  - B
+  - C
+- :name: B
+  :dependencies:
+  - C
+  - D
+- :name: C
+  :dependencies:
+  - D
+- :name: D

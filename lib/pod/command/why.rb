@@ -102,10 +102,16 @@ module Pod
       end
 
       # Computes and returns all possible paths between a source vertex and a target vertex in a directed graph.
-      # It does this by performing a DFS and, whenever the target is discovered (or re-discovered), the current
-      # DFS stack is captured as one of the possible paths.
       #
-      # @note Back edges are ignored because the input graph is assumed to be acyclic.
+      # It does this by performing a recursive walk through the graph (like DFS). After returning from a recursive
+      # descent through all of a vertex's edges, the vertex is prepended to each returned path and in this way the
+      # list of all paths is built up. The recursion stops when the target vertex is discovered.
+      #
+      # The algorithm described above is exponential in running time, so memoization is used to speed it up.
+      # After all paths from a vertex are discovered, the results are stored in a hash. Before processing a vertex,
+      # this hash is queried for a previously stored result, which if found is returned instead of recomputed.
+      #
+      # @note The input graph is assumed to be acyclic.
       #
       # @param [String] source
       #        The vertex at which to begin the search.
@@ -116,20 +122,16 @@ module Pod
       #
       # @return [Array<Array<String>>] a list of all paths from source to target
       def all_paths(source, target, graph)
-        dfs_stack = [source] # RGL uses recursion for DFS and does not expose a stack, so we build one as we go.
-        all_paths = []
-        visitor = RGL::DFSVisitor.new(graph)
-        visitor.set_tree_edge_event_handler do |_, v|
-          dfs_stack << v
-          all_paths << dfs_stack.dup if v == target
+
+        def search(source, target, graph, all_paths)
+          return all_paths[source] if all_paths.key?(source)
+          return [[target]] if source == target
+          source_paths = []
+          graph.each_adjacent(source) { |v| source_paths += search(v, target, graph, all_paths) }
+          all_paths[source] = source_paths.map { |path| [source] + path }
         end
-        visitor.set_forward_edge_event_handler do |_, v|
-          dfs_stack << v
-          all_paths << dfs_stack.dup if v == target
-          dfs_stack.pop
-        end
-        graph.depth_first_visit(source, visitor) { dfs_stack.pop }
-        all_paths
+
+        search(source, target, graph, {})
       end
 
       # Converts a list of dependency paths into a graph. The vertices in the paths are
