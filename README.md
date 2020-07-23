@@ -72,6 +72,15 @@ For local development of this plugin, the simplest approach is to install it int
 
 You can then make changes to the code and they will be executed when using the `why` command from the app's directory.
 
+# Release Process
+
+1. Bump version number in cocoapods_why.rb
+2. Run `bundle update` to update Gemfile.lock
+3. Make sure tests still pass: `rake spec`
+4. (Optional) Run Rubocop on all source files
+5. Build the gem: `gem build cocoapods-why.gemspec`
+6. Publish the gem: `gem push cocoapods-why-1.0.gem`
+
 # Copyright
 
 Copyright 2020 Square, Inc.
