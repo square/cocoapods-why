@@ -25,13 +25,22 @@ describe Pod::Command::Why do
     expect { run(%w[A Z]) }.to raise_error(CLAide::Help)
   end
 
+  it 'finds all dependencies' do
+    deps = run(['B'])
+    expect(deps).to eq %w[D E G H]
+  end
+
+  it 'finds no dependencies if the pod does not exist' do
+    expect { run(['Z']) }.to raise_error(CLAide::Help)
+  end
+
   it 'finds all reverse dependencies' do
-    deps = run(['G'])
+    deps = run(['G', '--reverse'])
     expect(deps).to eq %w[A B D E]
   end
 
   it 'finds no reverse dependencies if the pod does not exist' do
-    expect { run(['Z']) }.to raise_error(CLAide::Help)
+    expect { run(['Z', '--reverse']) }.to raise_error(CLAide::Help)
   end
 
   private
