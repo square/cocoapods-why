@@ -98,7 +98,11 @@ module Pod
       def make_graph(all_dependencies)
         graph = RGL::DirectedAdjacencyGraph.new
         all_dependencies.each do |source, targets|
-          targets.each { |target| graph.add_edge(source, target) }
+          if targets.empty?
+            graph.add_vertex(source)
+          else
+            targets.each { |target| graph.add_edge(source, target) }
+          end
         end
         graph
       end
@@ -182,7 +186,12 @@ module Pod
         graph = graph.vertices_filtered_by { |v| tree.has_vertex? v }
         sorted_dependencies = graph.vertices.sort
         sorted_dependencies.delete(source)
-        sorted_dependencies.each { |dependency| UI.puts dependency }
+
+        if sorted_dependencies.empty?
+          UI.puts 'Nothing'
+        else
+          sorted_dependencies.each { |dependency| UI.puts dependency }
+        end
 
         File.open(@to_yaml, 'w') { |file| file.write(sorted_dependencies.to_s) } if @to_yaml
         File.open(@to_dot, 'w') { |file| file.write(graph.to_dot_graph.to_s) } if @to_dot

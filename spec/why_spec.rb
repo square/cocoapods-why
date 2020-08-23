@@ -43,6 +43,16 @@ describe Pod::Command::Why do
     expect { run(['Z', '--reverse']) }.to raise_error(CLAide::Help)
   end
 
+  it 'finds no dependencies if the pod has no dependencies' do
+    deps = run(['Q'])
+    expect(deps).to be_empty
+  end
+
+  it 'finds no reverse dependencies if nothing depends on the pod' do
+    deps = run(['Q', '--reverse'])
+    expect(deps).to be_empty
+  end
+
   private
 
   def run(args = [], cache_arg = ["--cache=#{CACHE}"])
