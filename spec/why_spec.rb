@@ -30,6 +30,14 @@ describe Pod::Command::Why do
     expect(deps).to eq %w[D E G H]
   end
 
+  it 'finds direct dependencies' do
+    deps = run(['A', '--direct'])
+    expect(deps).to eq %w[B C]
+
+    deps = run(['B', '--direct'])
+    expect(deps).to eq %w[D E H]
+  end
+
   it 'finds no dependencies if the pod does not exist' do
     expect { run(['Z']) }.to raise_error(CLAide::Help)
   end
@@ -37,6 +45,11 @@ describe Pod::Command::Why do
   it 'finds all reverse dependencies' do
     deps = run(['G', '--reverse'])
     expect(deps).to eq %w[A B D E]
+  end
+
+  it 'finds reverse direct dependencies' do
+    deps = run(['G', '--reverse', '--direct'])
+    expect(deps).to eq %w[D E]
   end
 
   it 'finds no reverse dependencies if the pod does not exist' do

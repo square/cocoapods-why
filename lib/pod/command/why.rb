@@ -18,6 +18,7 @@ module Pod
       def self.options
         [
           ['--reverse', 'Shows reverse dependencies (what depends on the source instead of what the source depends on). Only valid when target is omitted.'],
+          ['--direct', 'Shows only the dependencies the source depends directly on (or only what depends directly on the source if used in conjunction with --reverse). Only valid when target is omitted.'],
           ['--to-yaml=FILE', 'Output the results in YAML format to the given file'],
           ['--to-dot=FILE', 'Output the results in DOT (GraphViz) format to the given file'],
           ['--cache=FILE', 'Load the dependency data from the given YAML file (created previously with the "query" command) instead of from the current CocoaPods instance']
@@ -29,6 +30,7 @@ module Pod
         @source = argv.shift_argument
         @target = argv.shift_argument
         @reverse = argv.flag?('reverse')
+        @direct = argv.flag?('direct')
         @to_yaml = argv.option('to-yaml')
         @to_dot = argv.option('to-dot')
         @cache = argv.option('cache')
@@ -44,7 +46,7 @@ module Pod
         all_dependencies = all_dependencies(targets)
         [@source, @target].compact.each { |pod| help! "Cannot find pod named #{pod}" if all_dependencies[pod].nil? }
         graph = make_graph(all_dependencies)
-        @target.nil? ? find_dependencies(@source, graph, @reverse) : find_all_dependency_paths(@source, @target, graph)
+        @target.nil? ? find_dependencies(@source, graph, @reverse, @direct) : find_all_dependency_paths(@source, @target, graph)
       end
 
       private
@@ -173,8 +175,9 @@ module Pod
         File.open(@to_dot, 'w') { |file| file.write(all_paths_graph(graph, all_paths).to_dot_graph.to_s) } if @to_dot
       end
 
-      # Finds and prints all pods that source depends on, or all that depend on source (directly or transitively).
-      def find_dependencies(source, graph, reverse)
+      # Finds and prints all pods that source depends on, or all that depend on source (directly or transitively,
+      # or only directly if `direct` is true).
+      def find_dependencies(source, graph, reverse, direct)
         if reverse
           UI.puts "What depends on #{source}?"
           graph = graph.reverse
@@ -182,10 +185,14 @@ module Pod
           UI.puts "What does #{source} depend on?"
         end
 
-        tree = graph.bfs_search_tree_from(source)
-        graph = graph.vertices_filtered_by { |v| tree.has_vertex? v }
-        sorted_dependencies = graph.vertices.sort
-        sorted_dependencies.delete(source)
+        if direct
+          sorted_dependencies = graph.adjacent_vertices(source).sort
+        else
+          tree = graph.bfs_search_tree_from(source)
+          graph = graph.vertices_filtered_by { |v| tree.has_vertex? v }
+          sorted_dependencies = graph.vertices.sort
+          sorted_dependencies.delete(source)
+        end
 
         if sorted_dependencies.empty?
           UI.puts 'Nothing'
