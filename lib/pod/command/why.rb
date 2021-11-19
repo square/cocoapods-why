@@ -42,7 +42,7 @@ module Pod
       end
 
       def run
-        UI.puts 'Loading dependencies...'
+        warn 'Loading dependencies...'
         all_dependencies = all_dependencies(targets)
         [@source, @target].compact.each { |pod| help! "Cannot find pod named #{pod}" if all_dependencies[pod].nil? }
         graph = make_graph(all_dependencies)
@@ -134,6 +134,7 @@ module Pod
         def search(source, target, graph, all_paths)
           return all_paths[source] if all_paths.key?(source)
           return [[target]] if source == target
+
           source_paths = []
           graph.each_adjacent(source) { |v| source_paths += search(v, target, graph, all_paths) }
           all_paths[source] = source_paths.map { |path| [source] + path }
@@ -165,7 +166,7 @@ module Pod
           return
         end
 
-        UI.puts "Why does #{source} depend on #{target}?"
+        warn "Why does #{source} depend on #{target}?"
 
         all_paths.each do |path|
           UI.puts path.join(' ⟶   ')
@@ -179,10 +180,10 @@ module Pod
       # or only directly if `direct` is true).
       def find_dependencies(source, graph, reverse, direct)
         if reverse
-          UI.puts "What depends on #{source}?"
+          warn "What depends on #{source}?"
           graph = graph.reverse
         else
-          UI.puts "What does #{source} depend on?"
+          warn "What does #{source} depend on?"
         end
 
         if direct
@@ -195,7 +196,7 @@ module Pod
         end
 
         if sorted_dependencies.empty?
-          UI.puts 'Nothing'
+          UI.puts 'No dependencies found'
         else
           sorted_dependencies.each { |dependency| UI.puts dependency }
         end
